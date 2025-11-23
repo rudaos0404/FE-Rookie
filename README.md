@@ -7,6 +7,10 @@
 
 ---
 
+## 🔗 Demo
+
+- https://fe-rookie.vercel.app/
+
 ## ✨ 주요 기능
 
 ### 1. 글 관리 (CRUD)
@@ -91,3 +95,29 @@ src
 │   └── themeStore.ts
 ├── App.tsx
 └── main.tsx
+
+
+
+🧠 구현 상세 (간단 정리)
+
+상세 페이지 조회수
+
+useEffect + useRef 조합으로 첫 진입 시 한 번만 increaseViews 호출
+
+이미 조회한 글은 viewedPostIds에 저장하여 중복 방지
+
+좋아요
+
+likedPostIds를 이용해 중복 좋아요 방지
+
+중복 시 alert로 안내
+
+북마크
+
+bookmarkedPostIds에 글 ID 저장
+
+상세/리스트에서 토글, Bookmark 페이지에서 모아보기
+
+권한 처리
+
+currentUser.nickname === post.author 일 때만 수정/삭제 버튼 노출
