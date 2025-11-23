@@ -53,9 +53,9 @@ export default function HomePage() {
               <p className="text-xs font-semibold tracking-[0.18em] text-sky-200">
                 FE ROOKIE HUB
               </p>
-              <h1 className="text-2xl font-bold leading-snug md:text-3xl">
+              <h1 className="text-xl font-bold leading-snug break-keep sm:text-2xl md:text-3xl">
                 프론트엔드 학습 · 에러 · 취준 정보를
-                <br />
+                <br className="hidden sm:block"/>
                 함께 나누는 작은 허브입니다.
               </h1>
               <p className="text-sm leading-relaxed text-slate-200/85 md:text-[13px]">
@@ -64,7 +64,7 @@ export default function HomePage() {
                 있어요.
               </p>
 
-              <div className="mt-3 flex flex-wrap gap-3 text-xs">
+              <div className="flex flex-wrap gap-3 text-sm">
                 <button
                   type="button"
                   onClick={handleGoPosts}
@@ -79,6 +79,12 @@ export default function HomePage() {
                 >
                   새 글 작성하기
                 </button>
+                <Link
+                  to="/bookmarks"
+                  className="inline-flex items-center rounded-full border border-slate-200/80 bg-slate-900/10 px-4 py-2 text-sm font-medium text-slate-100/80 hover:bg-slate-900/30 active:scale-95"
+                >
+                  북마크 보기
+                </Link>
               </div>
             </div>
 
