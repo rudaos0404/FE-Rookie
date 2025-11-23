@@ -1,138 +1,184 @@
+// src/pages/PostWritePage.tsx
 import { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import Input from "../components/common/Input";
-import Textarea from "../components/common/Textarea";
-import Button from "../components/common/Button";
 import { usePostStore } from "../store/postStore";
-import type { Post } from "../types/post";
+import { useUserStore } from "../store/userStore";
 
 function PostWritePage() {
   const navigate = useNavigate();
-  const posts = usePostStore((state) => state.posts);
+
   const addPost = usePostStore((state) => state.addPost);
+  const currentUser = useUserStore((state) => state.currentUser);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState<"study" | "job">("study");
-  const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  const addTag = () => {
-    if (!tagInput.trim()) return;
-    if (tags.includes(tagInput.trim())) return;
-    setTags([...tags, tagInput.trim()]);
+  const handleAddTag = () => {
+    const value = tagInput.trim();
+    if (!value) return;
+    if (tags.includes(value)) {
+      setTagInput("");
+      return;
+    }
+    setTags((prev) => [...prev, value]);
     setTagInput("");
   };
 
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter((t) => t !== tagToRemove));
+  const handleRemoveTag = (tag: string) => {
+    setTags((prev) => prev.filter((t) => t !== tag));
   };
 
-  const handleSubmit = () => {
-    if (!title.trim() || !content.trim()) {
-      alert("제목과 내용을 입력해 주세요.");
-      return;
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageUrl(typeof reader.result === "string" ? reader.result : null);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImageUrl(null);
     }
+  };
 
-    const newId =
-      posts.length > 0
-        ? Math.max(...posts.map((p) => p.id)) + 1
-        : 1;
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    const now = new Date().toISOString();
+    const author = currentUser?.nickname ?? "익명";
 
-    const newPost: Post = {
-      id: newId,
-      title,
-      content,
-      category,
-      tags,
-      author: "이경민",
-      createdAt: now,
-      updatedAt: now,
-      views: 0,
-      likes: 0,
-    };
+    addPost(
+      {
+        title,
+        content,
+        category,
+        tags,
+        imageUrl,
+      },
+      author
+    );
 
-    addPost(newPost);
-    alert("글이 등록되었습니다.");
     navigate("/posts");
   };
 
   return (
-    <div>
-      <h1>새 글 작성</h1>
+    <div className="min-h-[calc(100vh-64px)] bg-slate-950 text-slate-50 px-4 pb-16">
+      <div className="max-w-3xl mx-auto pt-10">
+        <h1 className="text-2xl font-bold mb-6">새 글 작성</h1>
 
-      <label>
-        제목
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </label>
-
-      <label style={{ display: "block", marginTop: "16px" }}>
-        내용
-        <Textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-      </label>
-
-      <label style={{ display: "block", marginTop: "16px" }}>
-        카테고리
-        <select
-          value={category}
-          onChange={(e) =>
-            setCategory(e.target.value as "study" | "job")
-          }
-          style={{
-            padding: "8px",
-            marginTop: "4px",
-            borderRadius: "8px",
-            border: "1px solid #e5e7eb",
-            background: "#fff",
-          }}
+      {/* ----- 이하 JSX는 그대로 ----- */}
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 bg-slate-900/80 rounded-3xl border border-slate-800/60 p-6 md:p-8"
         >
-          <option value="study">학습 / 에러</option>
-          <option value="job">취준 / 면접</option>
-        </select>
-      </label>
+          <div>
+            <label className="block text-sm font-medium mb-2">제목</label>
+            <input
+              className="w-full rounded-2xl bg-slate-950/60 border border-slate-800 px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/60 focus:border-sky-500/60"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
 
-      <label style={{ display: "block", marginTop: "16px" }}>
-        태그
-        <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
-          <Input
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            placeholder="예: React"
-          />
-          {/* 태그 추가 버튼은 secondary (회색) */}
-          <Button type="button" variant="secondary" onClick={addTag}>
-            추가
-          </Button>
-        </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">내용</label>
+            <textarea
+              className="w-full min-h-[180px] rounded-2xl bg-slate-950/60 border border-slate-800 px-4 py-3 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/60 focus:border-sky-500/60 resize-none"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+            />
+          </div>
 
-        <div style={{ marginTop: "8px" }}>
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="tag-badge"
-              onClick={() => removeTag(tag)}
-              style={{ cursor: "pointer" }}
-              title="클릭하면 태그가 제거됩니다"
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium mb-2">카테고리</label>
+              <select
+                className="w-full rounded-2xl bg-slate-950/60 border border-slate-800 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/60 focus:border-sky-500/60"
+                value={category}
+                onChange={(e) =>
+                  setCategory(e.target.value === "job" ? "job" : "study")
+                }
+              >
+                <option value="study">학습 / 에러</option>
+                <option value="job">취준 / 면접</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                대표 이미지 (선택)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="block w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-medium file:bg-slate-800 file:text-slate-50 hover:file:bg-slate-700"
+              />
+              {imageUrl && (
+                <img
+                  src={imageUrl}
+                  alt="미리보기"
+                  className="mt-3 w-full max-h-48 object-cover rounded-2xl border border-slate-800"
+                />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">태그</label>
+            <div className="flex gap-2 mb-3">
+              <input
+                className="flex-1 rounded-2xl bg-slate-950/60 border border-slate-800 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/60 focus:border-sky-500/60"
+                placeholder="예: React"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={handleAddTag}
+                className="px-4 py-2 rounded-2xl bg-slate-800 text-slate-100 text-sm font-medium hover:bg-slate-700"
+              >
+                추가
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => handleRemoveTag(tag)}
+                  className="inline-flex items-center px-3 py-1 rounded-full bg-slate-800 text-slate-100 text-xs"
+                >
+                  <span>#{tag}</span>
+                  <span className="ml-1 text-slate-400">×</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 rounded-full bg-slate-800 text-slate-100 text-sm font-medium hover:bg-slate-700"
             >
-              #{tag}
-            </span>
-          ))}
-        </div>
-      </label>
-
-      {/* 태그 영역과 버튼 사이 간격 확보 */}
-      <div style={{ marginTop: "24px" }}>
-        <Button type="button" onClick={handleSubmit}>
-          글 등록
-        </Button>
+              취소
+            </button>
+            <button
+              type="submit"
+              className="px-5 py-2 rounded-full bg-sky-500 text-white text-sm font-semibold hover:bg-sky-400"
+            >
+              작성 완료
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

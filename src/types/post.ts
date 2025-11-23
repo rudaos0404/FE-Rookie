@@ -1,14 +1,14 @@
-export type Category = "study" | "job";
-
+// src/types/post.ts
 export interface Post {
   id: number;
   title: string;
   content: string;
-  author: string;
-  category: Category; // "study" = 학습/에러, "job" = 취준/면접
+  category: "study" | "job";
   tags: string[];
-  createdAt: string;
-  updatedAt: string;
+  author: string;
   views: number;
   likes: number;
+  createdAt: string;
+  updatedAt?: string;
+  imageUrl?: string | null;
 }
