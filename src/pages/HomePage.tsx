@@ -59,8 +59,7 @@ export default function HomePage() {
                 함께 나누는 작은 허브입니다.
               </h1>
               <p className="text-sm leading-relaxed text-slate-200/85 md:text-[13px]">
-                데브코스 풀스택 과정을 수강 중인 이경민이 직접 사용하기 위해 만든
-                프로젝트로, 공부 기록과 실전 면접 경험을 편하게 정리하고 공유할 수
+                직접 사용하기 위해 만든 프로젝트로, 공부 기록과 실전 면접 경험을 편하게 정리하고 공유할 수
                 있어요.
               </p>
 
